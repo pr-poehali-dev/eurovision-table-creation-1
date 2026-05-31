@@ -470,9 +470,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  height: 36px;
+  height: 28px;
   background: #111118;
-  /* Чёткая граница между строками — 2px зазор */
   border-bottom: 2px solid #0a0a0a;
   overflow: hidden;
   cursor: default;
@@ -543,9 +542,9 @@
 }
 
 .score-badge {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
   /* Глянцевый фиолетовый */
   background: linear-gradient(160deg, #9333ea 0%, #6d28d9 60%, #4c1d95 100%);
   border: 1px solid rgba(167, 139, 250, 0.5);
@@ -570,7 +569,7 @@
   flex: 1;
   font-family: "Cinzel", serif;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 13px;
   letter-spacing: 2px;
   color: #ffffff;
   white-space: nowrap;
@@ -593,13 +592,13 @@
 .score-pts {
   position: relative;
   z-index: 1;
-  width: 44px;
+  width: 40px;
   flex-shrink: 0;
   text-align: right;
   padding-right: 10px;
   font-family: "Cinzel", serif;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
   color: #ffffff;
   text-shadow:
     0 0 12px rgba(255, 255, 255, 0.35),

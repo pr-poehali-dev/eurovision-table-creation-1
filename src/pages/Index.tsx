@@ -51,7 +51,6 @@ export default function Index() {
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const flyIdRef = useRef(0);
   const tableRef = useRef<HTMLDivElement>(null);
-  const ROW_H = 36;
 
   function startVoting() {
     if (selectedParticipants.length < 2 || selectedVoters.length < 1) return;
@@ -266,7 +265,7 @@ function MenuScreen({
 }
 
 /* ═══ VOTING SCREEN ═══════════════════════════════════════════ */
-const ROW_H = 36;
+const ROW_H = 30; // 28px строка + 2px border-bottom
 
 interface VotingScreenProps {
   sortedContestants: Contestant[];
