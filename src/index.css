@@ -342,91 +342,112 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   VOTING BG — зелёный фон с золотой дугой (Eurovision 2003)
+   VOTING BG — Eurovision 2007 Helsinki
 ═══════════════════════════════════════════════════════════ */
 .voting-bg {
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background:
-    radial-gradient(
-      ellipse 120% 100% at -10% 50%,
-      #c8860a 0%,
-      #a06800 8%,
-      transparent 28%
-    ),
-    radial-gradient(
-      ellipse 110% 90% at -5% 50%,
-      #f0c030 0%,
-      #d4960c 5%,
-      transparent 22%
-    ),
-    radial-gradient(
-      ellipse 140% 120% at 50% 110%,
-      #0a3a1a 0%,
-      #0d4020 40%,
-      transparent 70%
-    ),
-    linear-gradient(160deg, #0a2e14 0%, #0d3d1a 30%, #082810 60%, #051a0a 100%);
+  background: radial-gradient(
+    ellipse 120% 80% at 50% 20%,
+    #100820 0%,
+    #080412 55%,
+    #04020c 100%
+  );
   overflow: hidden;
 }
 
-/* Золотая дуга слева — декоративный элемент */
+/* Диагональные цветные полосы снизу-слева */
 .voting-bg-rays {
   position: absolute;
-  left: -20%;
-  top: -20%;
-  width: 55%;
-  height: 140%;
-  border-radius: 50%;
-  border: 28px solid transparent;
-  border-right: 28px solid rgba(212, 160, 20, 0.55);
-  border-bottom: 28px solid rgba(200, 140, 10, 0.3);
-  box-shadow:
-    4px 0 30px rgba(212, 160, 20, 0.3),
-    inset -4px 0 20px rgba(255, 200, 50, 0.15);
+  inset: 0;
   pointer-events: none;
   z-index: 0;
   animation: none;
+  background:
+    linear-gradient(
+      32deg,
+      transparent 54%,
+      rgba(220, 200, 0, 0.7) 54.2%,
+      rgba(220, 200, 0, 0.7) 55%,
+      transparent 55.2%
+    ),
+    linear-gradient(
+      32deg,
+      transparent 49%,
+      rgba(0, 190, 240, 0.65) 49.2%,
+      rgba(0, 190, 240, 0.65) 51%,
+      transparent 51.2%
+    ),
+    linear-gradient(
+      32deg,
+      transparent 38%,
+      rgba(220, 20, 160, 0.6) 38.2%,
+      rgba(200, 10, 140, 0.6) 47%,
+      transparent 47.2%
+    ),
+    linear-gradient(
+      32deg,
+      transparent 27%,
+      rgba(110, 0, 210, 0.45) 27.2%,
+      rgba(90, 0, 190, 0.45) 36%,
+      transparent 36.2%
+    ),
+    linear-gradient(
+      32deg,
+      rgba(40, 0, 100, 0.7) 0%,
+      rgba(30, 0, 80, 0.7) 25%,
+      transparent 25.2%
+    );
 }
 
-/* Внутренняя дуга */
+/* Верхнее синее свечение */
 .voting-bg-glow1 {
   position: absolute;
-  left: -14%;
-  top: -10%;
-  width: 42%;
-  height: 120%;
-  border-radius: 50%;
-  border: 14px solid transparent;
-  border-right: 14px solid rgba(255, 200, 60, 0.3);
+  inset: 0;
   pointer-events: none;
   z-index: 0;
-  animation: none;
-  background: none;
-}
-
-/* Центральное свечение — тёмно-зелёный овал */
-.voting-bg-glow2 {
-  position: absolute;
-  left: 15%;
-  top: 5%;
-  right: 2%;
-  bottom: 5%;
-  border-radius: 50% / 45%;
-  background: radial-gradient(
-    ellipse at 50% 50%,
-    #0f4d22 0%,
-    #0a3a18 40%,
-    #072810 75%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 0;
-  animation: none;
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -5%,
+      rgba(60, 20, 180, 0.35) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 50% 30% at 85% 5%,
+      rgba(0, 100, 220, 0.2) 0%,
+      transparent 100%
+    );
+  animation: glow-pulse 7s ease-in-out infinite;
   width: auto;
   height: auto;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0;
+  border: none;
+}
+
+/* Нижнее розовое свечение */
+.voting-bg-glow2 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    to top,
+    rgba(180, 0, 120, 0.18) 0%,
+    rgba(80, 0, 150, 0.08) 60%,
+    transparent 100%
+  );
+  animation: none;
+  width: auto;
+  top: auto;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -487,22 +508,15 @@
   display: flex;
   align-items: center;
   height: 28px;
-  /* Кремово-бежевая строка как на Eurovision 2003 */
-  background: linear-gradient(
-    180deg,
-    #f5f0d8 0%,
-    #ede5c0 40%,
-    #e8ddb0 70%,
-    #ddd3a0 100%
-  );
+  background: linear-gradient(180deg, #2c2c42 0%, #202035 50%, #1a1a2c 100%);
   border-radius: 3px;
   margin-bottom: 3px;
   overflow: hidden;
   cursor: default;
   box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.45),
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 -1px 0 rgba(0, 0, 0, 0.15) inset;
+    0 2px 8px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.07) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.4) inset;
 }
 
 /* Глянцевый блик сверху */
@@ -515,8 +529,8 @@
   height: 45%;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(255, 255, 255, 0.1) 100%
+    rgba(255, 255, 255, 0.07) 0%,
+    transparent 100%
   );
   pointer-events: none;
   z-index: 2;
@@ -528,24 +542,25 @@
 }
 
 .score-row-clickable:hover {
-  background: linear-gradient(180deg, #ffe88a 0%, #f5d830 40%, #e8c820 100%);
+  background: linear-gradient(180deg, #3a1e60 0%, #2a1450 50%, #1e0e3c 100%);
   box-shadow:
-    0 2px 10px rgba(200, 160, 0, 0.5),
-    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    0 0 0 1px rgba(180, 80, 255, 0.45) inset,
+    0 2px 14px rgba(140, 0, 220, 0.35);
 }
 
-/* Gold sweep */
+/* Silver-blue sweep (Eurovision 2007) */
 .score-row-sweep {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     90deg,
-    #c8a020 0%,
-    #e8c040 25%,
-    #f5d860 50%,
-    #ffe878 70%,
-    #fff0a0 85%,
-    #fffac0 100%
+    #1a1a30 0%,
+    #303060 20%,
+    #5050a0 45%,
+    #8080c8 62%,
+    #b0b0e0 78%,
+    #e0e0f8 90%,
+    #f0f0ff 100%
   );
   transform-origin: left;
   transition: transform 0.04s linear;
@@ -594,12 +609,12 @@
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 2.5px;
-  color: #1a1200;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
   padding-right: 4px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
 }
@@ -620,8 +635,8 @@
   font-family: "Cinzel", serif;
   font-weight: 700;
   font-size: 16px;
-  color: #1a1200;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   letter-spacing: 0;
 }
 
