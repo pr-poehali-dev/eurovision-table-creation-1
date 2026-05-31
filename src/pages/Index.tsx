@@ -19,6 +19,7 @@ interface Contestant {
   points: number;
   animating: boolean;
   fillProgress: number;
+  lastReceived: number | null;
 }
 
 interface FlyingSquare {
@@ -37,11 +38,11 @@ interface VotingInfo {
 
 export default function Index() {
   const [phase, setPhase] = useState<Phase>("setup");
-  const [voter, setVoter] = useState<string>("");
-  const [contestant, setContestant] = useState<string>("");
+  const [voter, setVoter] = useState("");
+  const [contestant, setContestant] = useState("");
 
   const [contestants, setContestants] = useState<Contestant[]>(
-    PARTICIPANTS.map((name) => ({ name, points: 0, animating: false, fillProgress: 0 }))
+    PARTICIPANTS.map((name) => ({ name, points: 0, animating: false, fillProgress: 0, lastReceived: null }))
   );
 
   const [givenPoints, setGivenPoints] = useState<number[]>([]);
@@ -71,7 +72,6 @@ export default function Index() {
   function handleContestantClick(targetName: string) {
     if (activePoints === null) return;
     if (targetName === contestant) return;
-
     const pts = activePoints;
     const btnEl = pointBtnRefs.current[pts];
     const rowEl = rowRefs.current[targetName];
@@ -81,91 +81,83 @@ export default function Index() {
     const rowRect = rowEl.getBoundingClientRect();
 
     const flyId = flyIdRef.current++;
-    const sq: FlyingSquare = {
-      id: flyId,
-      points: pts,
+    setFlyingSquares(prev => [...prev, {
+      id: flyId, points: pts,
       startX: btnRect.left + btnRect.width / 2 - 32,
-      startY: btnRect.top + btnRect.height / 2 - 26,
-      endX: rowRect.right - 80,
+      startY: btnRect.top - 60,
+      endX: rowRect.right - 90,
       endY: rowRect.top + rowRect.height / 2 - 26,
-    };
-
-    setFlyingSquares(prev => [...prev, sq]);
+    }]);
     setGivenPoints(prev => [...prev, pts]);
     setActivePoints(null);
 
     setTimeout(() => {
       setFlyingSquares(prev => prev.filter(s => s.id !== flyId));
       animateRow(targetName, pts);
-    }, 650);
+    }, 680);
   }
 
   function animateRow(targetName: string, pts: number) {
-    const duration = 1400;
-    const steps = 70;
     let step = 0;
+    const steps = 70;
+    const duration = 1400;
     let basePoints = 0;
 
     setContestants(prev => {
       const found = prev.find(c => c.name === targetName);
       if (found) basePoints = found.points;
-      return prev.map(c => c.name === targetName ? { ...c, animating: true, fillProgress: 0 } : c);
+      return prev.map(c =>
+        c.name === targetName ? { ...c, animating: true, fillProgress: 0, lastReceived: pts } : c
+      );
     });
 
     const interval = setInterval(() => {
       step++;
       const progress = step / steps;
+      const done = step >= steps;
       setContestants(prev =>
         prev.map(c => {
           if (c.name !== targetName) return c;
-          const displayPoints = basePoints + Math.min(Math.floor(pts * Math.min(progress * 1.3, 1)), pts);
-          const done = step >= steps;
+          const display = Math.min(Math.floor(pts * Math.min(progress * 1.3, 1)), pts);
           return {
             ...c,
             fillProgress: Math.min(progress, 1),
-            points: done ? basePoints + pts : displayPoints,
+            points: done ? basePoints + pts : basePoints + display,
             animating: !done,
           };
         })
       );
-      if (step >= steps) clearInterval(interval);
+      if (done) clearInterval(interval);
     }, duration / steps);
   }
 
   const allPointsGiven = POINT_VALUES.every(p => givenPoints.includes(p));
+  const half = Math.ceil(sortedContestants.length / 2);
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", fontFamily: "'Oswald', sans-serif" }}>
       {phase === "setup" && (
         <SetupScreen
           participants={PARTICIPANTS}
-          voter={voter}
-          contestant={contestant}
-          onVoterChange={setVoter}
-          onContestantChange={setContestant}
+          voter={voter} contestant={contestant}
+          onVoterChange={setVoter} onContestantChange={setContestant}
           onStart={startVoting}
         />
       )}
       {phase === "voting" && (
         <VotingScreen
           sortedContestants={sortedContestants}
-          voter={voter}
-          contestant={contestant}
-          givenPoints={givenPoints}
-          activePoints={activePoints}
-          flyingSquares={flyingSquares}
-          votingInfo={votingInfo}
-          pointBtnRefs={pointBtnRefs}
-          rowRefs={rowRefs}
+          voter={voter} contestant={contestant}
+          givenPoints={givenPoints} activePoints={activePoints}
+          flyingSquares={flyingSquares} votingInfo={votingInfo}
+          half={half}
+          pointBtnRefs={pointBtnRefs} rowRefs={rowRefs}
           allPointsGiven={allPointsGiven}
           onPointClick={handlePointClick}
           onContestantClick={handleContestantClick}
           onNewVoting={() => {
-            setPhase("setup");
-            setVoter("");
-            setContestant("");
-            setGivenPoints([]);
-            setActivePoints(null);
+            setPhase("setup"); setVoter(""); setContestant("");
+            setGivenPoints([]); setActivePoints(null);
           }}
         />
       )}
@@ -173,7 +165,9 @@ export default function Index() {
   );
 }
 
-/* ─── SETUP ─────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════════════════════ */
 function SetupScreen({ participants, voter, contestant, onVoterChange, onContestantChange, onStart }: {
   participants: string[]; voter: string; contestant: string;
   onVoterChange: (v: string) => void; onContestantChange: (v: string) => void; onStart: () => void;
@@ -181,13 +175,12 @@ function SetupScreen({ participants, voter, contestant, onVoterChange, onContest
   return (
     <div style={{
       minHeight: "100vh",
-      background: "radial-gradient(ellipse at 30% 20%, #1a0533 0%, #08001a 50%, #000 100%)",
+      background: "radial-gradient(ellipse at 30% 20%, #1a0533 0%, #08001a 55%, #000 100%)",
       display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "32px 16px"
     }}>
       <div style={{ width: "100%", maxWidth: 900, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: 32 }}>
-        <div style={{ fontSize: 42, textAlign: "center", marginBottom: 6 }}>🎤</div>
-        <h1 style={{ fontFamily: "'Oswald',sans-serif", fontSize: 30, fontWeight: 700, color: "#fff", textAlign: "center", letterSpacing: 4, marginBottom: 4 }}>
-          ЕВРОВИДЕНИЕ <span style={{ color: "#c084fc", fontSize: 18, letterSpacing: 8 }}>ГОЛОСОВАНИЕ</span>
+        <h1 style={{ fontFamily: "'Oswald',sans-serif", fontSize: 28, fontWeight: 700, color: "#fff", textAlign: "center", letterSpacing: 4, marginBottom: 4 }}>
+          🎤 ЕВРОВИДЕНИЕ &nbsp;<span style={{ color: "#c084fc", fontSize: 16, letterSpacing: 6 }}>ГОЛОСОВАНИЕ</span>
         </h1>
 
         {[
@@ -195,7 +188,7 @@ function SetupScreen({ participants, voter, contestant, onVoterChange, onContest
           { label: "ЧЕЙ ВЫХОД НА СЦЕНУ", val: contestant, onChange: onContestantChange },
         ].map(({ label, val, onChange }) => (
           <div key={label} style={{ marginTop: 24 }}>
-            <div style={{ fontFamily: "'Oswald',sans-serif", fontSize: 12, letterSpacing: 3, color: "#a78bfa", marginBottom: 10 }}>{label}</div>
+            <div style={{ fontFamily: "'Oswald',sans-serif", fontSize: 11, letterSpacing: 3, color: "#a78bfa", marginBottom: 10 }}>{label}</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
               {participants.map(name => (
                 <button key={name} onClick={() => onChange(name)} style={{
@@ -203,8 +196,7 @@ function SetupScreen({ participants, voter, contestant, onVoterChange, onContest
                   padding: "6px 13px", borderRadius: 6,
                   border: val === name ? "1px solid #c084fc" : "1px solid rgba(255,255,255,0.15)",
                   background: val === name ? "linear-gradient(135deg,#7c3aed,#a855f7)" : "rgba(255,255,255,0.06)",
-                  color: val === name ? "#fff" : "#d4c9f0",
-                  cursor: "pointer", whiteSpace: "nowrap",
+                  color: "#fff", cursor: "pointer", whiteSpace: "nowrap",
                   boxShadow: val === name ? "0 0 14px rgba(168,85,247,0.5)" : "none",
                 }}>{name}</button>
               ))}
@@ -215,25 +207,28 @@ function SetupScreen({ participants, voter, contestant, onVoterChange, onContest
         <button onClick={onStart} disabled={!voter || !contestant || voter === contestant} style={{
           display: "block", width: "100%", marginTop: 28, padding: 15,
           fontFamily: "'Oswald',sans-serif", fontSize: 17, fontWeight: 700, letterSpacing: 4,
-          borderRadius: 8, border: "none", cursor: voter && contestant && voter !== contestant ? "pointer" : "not-allowed",
+          borderRadius: 8, border: "none",
+          cursor: voter && contestant && voter !== contestant ? "pointer" : "not-allowed",
           background: voter && contestant && voter !== contestant
-            ? "linear-gradient(135deg,#be185d,#ec4899)" : "rgba(255,255,255,0.06)",
+            ? "linear-gradient(135deg,#be185d,#ec4899)" : "rgba(255,255,255,0.08)",
           color: voter && contestant && voter !== contestant ? "#fff" : "rgba(255,255,255,0.3)",
-          boxShadow: voter && contestant && voter !== contestant ? "0 0 28px rgba(236,72,153,0.5)" : "none",
+          boxShadow: voter && contestant && voter !== contestant ? "0 0 28px rgba(236,72,153,0.4)" : "none",
         }}>НАЧАТЬ ГОЛОСОВАНИЕ</button>
         {voter && contestant && voter === contestant &&
-          <p style={{ textAlign: "center", color: "#f87171", fontFamily: "'Montserrat',sans-serif", fontSize: 13, marginTop: 8 }}>Нельзя голосовать за себя</p>
+          <p style={{ textAlign: "center", color: "#f87171", fontSize: 13, marginTop: 8, fontFamily: "'Montserrat',sans-serif" }}>Нельзя голосовать за себя</p>
         }
       </div>
     </div>
   );
 }
 
-/* ─── VOTING ─────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   VOTING SCREEN
+═══════════════════════════════════════════════════════════ */
 interface VotingScreenProps {
   sortedContestants: Contestant[]; voter: string; contestant: string;
   givenPoints: number[]; activePoints: number | null; flyingSquares: FlyingSquare[];
-  votingInfo: VotingInfo;
+  votingInfo: VotingInfo; half: number;
   pointBtnRefs: React.MutableRefObject<Record<number, HTMLButtonElement | null>>;
   rowRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   allPointsGiven: boolean;
@@ -242,149 +237,184 @@ interface VotingScreenProps {
 
 function VotingScreen({
   sortedContestants, voter, contestant, givenPoints, activePoints,
-  flyingSquares, votingInfo, pointBtnRefs, rowRefs,
-  allPointsGiven, onPointClick, onContestantClick, onNewVoting
+  flyingSquares, votingInfo, half,
+  pointBtnRefs, rowRefs, allPointsGiven,
+  onPointClick, onContestantClick, onNewVoting,
 }: VotingScreenProps) {
-
-  const half = Math.ceil(sortedContestants.length / 2);
   const leftCol = sortedContestants.slice(0, half);
   const rightCol = sortedContestants.slice(half);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#111318", position: "relative" }}>
-
-      {/* Flying squares */}
+    <div style={{
+      display: "flex", flexDirection: "column", height: "100vh",
+      background: "#0d0d14",
+      fontFamily: "'Oswald', sans-serif",
+      position: "relative", overflow: "hidden",
+    }}>
       {flyingSquares.map(sq => <FlyingSquareEl key={sq.id} sq={sq} />)}
 
-      {/* Header */}
-      <div style={{
-        padding: "8px 16px", background: "rgba(0,0,0,0.6)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-        display: "flex", alignItems: "center", justifyContent: "space-between"
-      }}>
-        <div style={{ color: "#fff", fontFamily: "'Oswald',sans-serif", fontSize: 15, letterSpacing: 2 }}>
-          {votingInfo.voterCount} из {votingInfo.totalVoters} голосующих
-        </div>
-        <div style={{ color: "#c084fc", fontFamily: "'Montserrat',sans-serif", fontSize: 13, fontWeight: 700 }}>
-          Голосует: <span style={{ color: "#fff" }}>{voter}</span>
-          {" · "}Выход на сцену: <span style={{ color: "#fff" }}>{contestant}</span>
-        </div>
-        {allPointsGiven && (
-          <button onClick={onNewVoting} style={{
-            fontFamily: "'Oswald',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 2,
-            padding: "7px 18px", borderRadius: 6, border: "none", cursor: "pointer",
-            background: "linear-gradient(135deg,#be185d,#ec4899)", color: "#fff",
-            boxShadow: "0 0 16px rgba(236,72,153,0.5)"
-          }}>СЛЕДУЮЩИЙ</button>
-        )}
-      </div>
+      {/* Основная area */}
+      <div style={{ flex: 1, display: "flex", gap: 0, overflow: "hidden", padding: "8px 8px 0" }}>
 
-      {/* Table – 2 columns */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "6px 10px 4px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3px 12px" }}>
-          {/* Left column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {/* ══ ТАБЛИЦА — точная копия оригинала ══ */}
+        <div style={{
+          flex: 1,
+          background: "#2c2c3c",
+          borderRadius: "6px 6px 0 0",
+          overflow: "hidden",
+          border: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "none",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+        }}>
+          {/* ЛЕВАЯ КОЛОНКА */}
+          <div style={{ borderRight: "1px solid rgba(0,0,0,0.5)" }}>
             {leftCol.map((c, i) => (
-              <ScoreRow key={c.name} c={c} rank={i + 1}
+              <TableRow
+                key={c.name} c={c} rank={i + 1}
+                even={i % 2 === 0}
                 isContestant={c.name === contestant}
-                isActive={activePoints !== null && c.name !== contestant}
+                isClickable={activePoints !== null && c.name !== contestant}
                 onClick={() => onContestantClick(c.name)}
                 rowRef={(el: HTMLDivElement | null) => { rowRefs.current[c.name] = el; }}
               />
             ))}
           </div>
-          {/* Right column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {/* ПРАВАЯ КОЛОНКА */}
+          <div>
             {rightCol.map((c, i) => (
-              <ScoreRow key={c.name} c={c} rank={half + i + 1}
+              <TableRow
+                key={c.name} c={c} rank={half + i + 1}
+                even={i % 2 === 0}
                 isContestant={c.name === contestant}
-                isActive={activePoints !== null && c.name !== contestant}
+                isClickable={activePoints !== null && c.name !== contestant}
                 onClick={() => onContestantClick(c.name)}
                 rowRef={(el: HTMLDivElement | null) => { rowRefs.current[c.name] = el; }}
               />
             ))}
           </div>
         </div>
+
+        {/* ══ ПРАВАЯ ПАНЕЛЬ ══ */}
+        <div style={{
+          width: 230, flexShrink: 0,
+          background: "#1c1c28",
+          borderRadius: "6px 6px 0 0",
+          border: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "none",
+          marginLeft: 6,
+          display: "flex", flexDirection: "column",
+          justifyContent: "flex-end",
+          padding: 14,
+        }}>
+          <div style={{
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            paddingTop: 12,
+          }}>
+            <div style={{
+              fontFamily: "'Oswald',sans-serif", fontWeight: 700,
+              fontSize: 21, color: "#fff", letterSpacing: 0.5, marginBottom: 5,
+            }}>{contestant}</div>
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>
+              {votingInfo.voterCount} из {votingInfo.totalVoters} голосующих
+            </div>
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+              Голосует: <span style={{ color: "#c084fc", fontWeight: 700 }}>{voter}</span>
+            </div>
+            {allPointsGiven && (
+              <button onClick={onNewVoting} style={{
+                marginTop: 12, width: "100%", padding: "9px 0",
+                fontFamily: "'Oswald',sans-serif", fontWeight: 700, fontSize: 12, letterSpacing: 2,
+                background: "linear-gradient(135deg,#be185d,#ec4899)", color: "#fff",
+                border: "none", borderRadius: 5, cursor: "pointer",
+                boxShadow: "0 0 14px rgba(236,72,153,0.5)",
+              }}>СЛЕДУЮЩИЙ →</button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Bottom points bar – Eurovision style */}
-      <PointsBar
-        givenPoints={givenPoints}
-        activePoints={activePoints}
-        onPointClick={onPointClick}
-        pointBtnRefs={pointBtnRefs}
+      {/* ══ НИЖНЯЯ ПОЛОСА С БАЛЛАМИ ══ */}
+      <BottomBar
+        givenPoints={givenPoints} activePoints={activePoints}
+        onPointClick={onPointClick} pointBtnRefs={pointBtnRefs}
       />
     </div>
   );
 }
 
-/* ─── SCORE ROW ──────────────────────────────────────────────── */
-function ScoreRow({ c, rank, isContestant, isActive, onClick, rowRef }: {
-  c: Contestant; rank: number; isContestant: boolean; isActive: boolean;
+/* ═══════════════════════════════════════════════════════════
+   TABLE ROW
+═══════════════════════════════════════════════════════════ */
+function TableRow({ c, rank, even, isContestant, isClickable, onClick, rowRef }: {
+  c: Contestant; rank: number; even: boolean;
+  isContestant: boolean; isClickable: boolean;
   onClick: () => void; rowRef: (el: HTMLDivElement | null) => void;
 }) {
-  const showRank = rank <= 10;
-
   return (
     <div
       ref={rowRef}
-      onClick={isActive ? onClick : undefined}
+      onClick={isClickable ? onClick : undefined}
       style={{
         position: "relative",
         display: "flex",
         alignItems: "center",
-        height: 34,
-        borderRadius: 3,
+        height: 36,
+        background: isContestant
+          ? "#3d1a6e"
+          : even ? "#363648" : "#2e2e3e",
+        borderBottom: "1px solid rgba(0,0,0,0.4)",
+        cursor: isClickable ? "pointer" : "default",
         overflow: "hidden",
-        cursor: isActive ? "pointer" : "default",
-        border: isContestant
-          ? "1px solid rgba(168,85,247,0.5)"
-          : isActive
-            ? "1px solid rgba(255,255,255,0.25)"
-            : "1px solid rgba(255,255,255,0.04)",
-        background: isContestant ? "rgba(88,28,135,0.35)" : "transparent",
-        transition: "box-shadow 0.15s",
-        boxShadow: isActive && !isContestant ? "0 0 0 1px rgba(255,255,255,0.1) inset" : "none",
+        outline: isClickable ? "1px solid rgba(255,255,255,0.08) inset" : "none",
       }}
     >
-      {/* Silver fill sweep */}
+      {/* Silver sweep */}
       {c.animating && (
         <div style={{
-          position: "absolute", inset: 0,
-          background: "linear-gradient(90deg, #4b5563 0%, #9ca3af 40%, #d1d5db 70%, #f3f4f6 100%)",
+          position: "absolute", inset: 0, zIndex: 0,
+          background: "linear-gradient(90deg, #4b5563 0%, #6b7280 25%, #9ca3af 55%, #d1d5db 75%, #f0f0f0 100%)",
           transformOrigin: "left",
           transform: `scaleX(${c.fillProgress})`,
-          transition: "transform 0.05s linear",
-          zIndex: 0,
+          transition: "transform 0.04s linear",
         }} />
       )}
-      {/* Rank badge */}
+
+      {/* Левая зона: бейдж или пусто */}
       <div style={{
         position: "relative", zIndex: 1,
-        width: 28, flexShrink: 0, textAlign: "center",
-        fontFamily: "'Oswald',sans-serif", fontSize: 13, fontWeight: 600,
-        color: showRank ? "#e5e7eb" : "transparent",
-        background: showRank ? "rgba(255,255,255,0.12)" : "transparent",
-        height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+        width: 34, height: "100%", flexShrink: 0,
+        display: "flex", alignItems: "center", justifyContent: "center",
       }}>
-        {showRank ? rank : ""}
+        {c.lastReceived !== null && (
+          <div style={{
+            width: 22, height: 22, borderRadius: 3,
+            background: "#6d28d9",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontFamily: "'Oswald',sans-serif", fontWeight: 700, fontSize: 13, color: "#fff",
+          }}>
+            {c.lastReceived}
+          </div>
+        )}
       </div>
-      {/* Name */}
+
+      {/* Имя */}
       <div style={{
         position: "relative", zIndex: 1, flex: 1,
-        fontFamily: "'Montserrat',sans-serif", fontSize: 12, fontWeight: 700,
-        color: "#ffffff", paddingLeft: 8, paddingRight: 4,
+        fontFamily: "'Oswald',sans-serif", fontWeight: 400, fontSize: 15,
+        color: "#fff", letterSpacing: 0.2,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-        textShadow: "0 1px 4px rgba(0,0,0,0.9)",
+        paddingRight: 4,
       }}>
         {c.name}
       </div>
-      {/* Score */}
+
+      {/* Счёт */}
       <div style={{
         position: "relative", zIndex: 1,
-        width: 42, textAlign: "right", paddingRight: 10,
-        fontFamily: "'Oswald',sans-serif", fontSize: 18, fontWeight: 700,
-        color: "#ffffff", textShadow: "0 1px 4px rgba(0,0,0,0.9)", flexShrink: 0,
+        width: 44, textAlign: "right", paddingRight: 10, flexShrink: 0,
+        fontFamily: "'Oswald',sans-serif", fontWeight: 700, fontSize: 19,
+        color: "#fff",
       }}>
         {c.points > 0 ? c.points : ""}
       </div>
@@ -392,96 +422,95 @@ function ScoreRow({ c, rank, isContestant, isActive, onClick, rowRef }: {
   );
 }
 
-/* ─── POINTS BAR (bottom) ────────────────────────────────────── */
-function PointsBar({ givenPoints, activePoints, onPointClick, pointBtnRefs }: {
+/* ═══════════════════════════════════════════════════════════
+   BOTTOM BAR  — 1 2 3 4 5 6 7 | 8  10  12
+═══════════════════════════════════════════════════════════ */
+function BottomBar({ givenPoints, activePoints, onPointClick, pointBtnRefs }: {
   givenPoints: number[]; activePoints: number | null;
   onPointClick: (pts: number) => void;
   pointBtnRefs: React.MutableRefObject<Record<number, HTMLButtonElement | null>>;
 }) {
-  const smallPts = [1, 2, 3, 4, 5, 6, 7];
-  const bigPts = [8, 10, 12];
-
   return (
     <div style={{
-      background: "rgba(0,0,0,0.75)",
-      borderTop: "1px solid rgba(255,255,255,0.08)",
-      padding: "10px 20px 14px",
+      background: "#0d0d14",
+      borderTop: "2px solid rgba(255,255,255,0.05)",
+      padding: "10px 0 13px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       gap: 6,
     }}>
-      {smallPts.map(pts => {
+      {/* 1–7 */}
+      {[1, 2, 3, 4, 5, 6, 7].map(pts => {
         const given = givenPoints.includes(pts);
         const active = activePoints === pts;
         return (
           <button
             key={pts}
-            ref={(el) => { pointBtnRefs.current[pts] = el; }}
+            ref={el => { pointBtnRefs.current[pts] = el; }}
             onClick={given ? undefined : () => onPointClick(pts)}
             disabled={given}
             style={{
-              fontFamily: "'Oswald',sans-serif", fontWeight: 700, fontSize: 20,
-              width: 54, height: 54,
-              borderRadius: 4,
-              border: active ? "2px solid #f0abfc" : "2px solid rgba(255,255,255,0.2)",
-              background: given
-                ? "rgba(255,255,255,0.08)"
-                : active
-                  ? "rgba(100,116,139,0.9)"
-                  : "rgba(71,85,105,0.7)",
-              color: given ? "rgba(255,255,255,0.25)" : "#fff",
+              width: 58, height: 58,
+              fontFamily: "'Oswald',sans-serif", fontWeight: 700, fontSize: 24,
+              color: given ? "rgba(255,255,255,0.18)" : "#fff",
+              background: given ? "rgba(255,255,255,0.05)" : active ? "#4a4a62" : "#3a3a52",
+              border: active ? "2px solid #e879f9" : "2px solid rgba(255,255,255,0.1)",
+              borderRadius: 5,
               cursor: given ? "not-allowed" : "pointer",
-              boxShadow: active ? "0 0 20px rgba(240,171,252,0.8)" : "none",
-              transform: active ? "scale(1.12)" : "scale(1)",
-              transition: "all 0.12s",
+              boxShadow: active ? "0 0 20px rgba(232,121,249,0.8)" : "none",
+              transform: active ? "scale(1.1)" : "scale(1)",
+              transition: "all 0.1s", padding: 0,
             }}
-          >
-            {pts}
-          </button>
+          >{pts}</button>
         );
       })}
 
-      {bigPts.map(pts => {
+      <div style={{ width: 10 }} />
+
+      {/* 8, 10, 12 */}
+      {[8, 10, 12].map(pts => {
         const given = givenPoints.includes(pts);
         const active = activePoints === pts;
         return (
           <button
             key={pts}
-            ref={(el) => { pointBtnRefs.current[pts] = el; }}
+            ref={el => { pointBtnRefs.current[pts] = el; }}
             onClick={given ? undefined : () => onPointClick(pts)}
             disabled={given}
             style={{
-              fontFamily: "'Oswald',sans-serif", fontWeight: 700, fontSize: 30,
-              width: 80, height: 54,
-              borderRadius: 4,
-              border: active ? "2px solid #f9a8d4" : "2px solid rgba(244,114,182,0.4)",
+              width: 88, height: 58,
+              fontFamily: "'Oswald',sans-serif", fontWeight: 700, fontSize: 34,
+              color: given ? "rgba(255,255,255,0.18)" : "#fff",
               background: given
-                ? "rgba(190,24,93,0.15)"
-                : active
-                  ? "linear-gradient(135deg,#9d174d,#db2777)"
-                  : "linear-gradient(135deg,#be185d,#ec4899)",
-              color: given ? "rgba(255,255,255,0.25)" : "#fff",
+                ? "rgba(190,24,93,0.12)"
+                : "linear-gradient(180deg, #e91e8c 0%, #b5135b 100%)",
+              border: active
+                ? "2px solid #fda4d0"
+                : given
+                  ? "2px solid rgba(190,24,93,0.2)"
+                  : "2px solid rgba(233,30,140,0.6)",
+              borderRadius: 5,
               cursor: given ? "not-allowed" : "pointer",
               boxShadow: given ? "none" : active
-                ? "0 0 28px rgba(236,72,153,0.9)"
-                : "0 0 14px rgba(236,72,153,0.5)",
-              transform: active ? "scale(1.1)" : "scale(1)",
-              transition: "all 0.12s",
+                ? "0 0 32px rgba(233,30,140,1)"
+                : "0 0 16px rgba(233,30,140,0.55)",
+              transform: active ? "scale(1.08)" : "scale(1)",
+              transition: "all 0.1s", padding: 0,
             }}
-          >
-            {pts}
-          </button>
+          >{pts}</button>
         );
       })}
     </div>
   );
 }
 
-/* ─── FLYING SQUARE ──────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   FLYING SQUARE
+═══════════════════════════════════════════════════════════ */
 function FlyingSquareEl({ sq }: { sq: FlyingSquare }) {
   const [pos, setPos] = useState({ x: sq.startX, y: sq.startY });
-  const isPink = sq.points >= 8;
+  const big = sq.points >= 8;
 
   useEffect(() => {
     const t = setTimeout(() => setPos({ x: sq.endX, y: sq.endY }), 30);
@@ -491,19 +520,16 @@ function FlyingSquareEl({ sq }: { sq: FlyingSquare }) {
   return (
     <div style={{
       position: "fixed", left: pos.x, top: pos.y, zIndex: 9999,
-      width: 64, height: 52,
+      width: 66, height: 54,
       display: "flex", alignItems: "center", justifyContent: "center",
-      borderRadius: 4,
+      borderRadius: 5,
       fontFamily: "'Oswald',sans-serif", fontWeight: 700,
-      fontSize: isPink ? 30 : 22,
-      color: "#fff",
-      background: isPink
-        ? "linear-gradient(135deg,#be185d,#ec4899)"
-        : "rgba(71,85,105,0.9)",
-      boxShadow: isPink ? "0 0 24px rgba(236,72,153,0.8)" : "0 0 12px rgba(255,255,255,0.3)",
-      border: isPink ? "2px solid rgba(244,114,182,0.5)" : "2px solid rgba(255,255,255,0.2)",
+      fontSize: big ? 32 : 24, color: "#fff",
+      background: big ? "linear-gradient(180deg,#e91e8c,#b5135b)" : "#3a3a52",
+      border: big ? "2px solid rgba(253,164,208,0.7)" : "2px solid rgba(255,255,255,0.15)",
+      boxShadow: big ? "0 0 24px rgba(233,30,140,0.9)" : "0 0 8px rgba(0,0,0,0.6)",
       pointerEvents: "none",
-      transition: "left 0.6s cubic-bezier(0.4,0,0.2,1), top 0.6s cubic-bezier(0.4,0,0.2,1)",
+      transition: "left 0.62s cubic-bezier(0.4,0,0.2,1), top 0.62s cubic-bezier(0.4,0,0.2,1)",
     }}>
       {sq.points}
     </div>
