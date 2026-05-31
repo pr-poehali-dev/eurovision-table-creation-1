@@ -422,15 +422,17 @@
   position: relative;
   z-index: 1;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 10px 10px 0;
+  scrollbar-width: none;
+}
+.voting-table-wrap::-webkit-scrollbar {
+  display: none;
 }
 
 .voting-table-cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  height: 100%;
+  position: relative;
   background: #0a0a0a;
   border-radius: 8px 8px 0 0;
   overflow: hidden;
@@ -439,18 +441,26 @@
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.04),
     0 -20px 60px rgba(100, 0, 160, 0.1) inset;
+  width: 100%;
 }
 
-.voting-col {
-  overflow: hidden;
+/* Вертикальный разделитель */
+.voting-col-divider {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  z-index: 1;
+  pointer-events: none;
 }
 
-.voting-col:first-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.voting-row-anim {
-  will-change: transform;
+/* Абсолютно позиционированная строка */
+.voting-abs-row {
+  position: absolute;
+  will-change: top, left;
+  box-sizing: border-box;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -460,15 +470,15 @@
   position: relative;
   display: flex;
   align-items: center;
-  height: 42px;
+  height: 36px;
   background: #111118;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+  /* Чёткая граница между строками — 2px зазор */
+  border-bottom: 2px solid #0a0a0a;
   overflow: hidden;
   cursor: default;
-  /* Нижняя тень для разделения строк */
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.02),
-    0 -1px 0 rgba(0, 0, 0, 0.4);
+    0 1px 0 rgba(255, 255, 255, 0.025),
+    0 -1px 0 rgba(0, 0, 0, 0.5);
 }
 
 /* Глянцевый блик сверху */
@@ -553,39 +563,47 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Имя — 70% ширины, Cinzel, заглавные */
+/* Имя — растянуто на ~70% строки, Cinzel, заглавные */
 .score-name {
   position: relative;
   z-index: 1;
-  /* 70% строки минус бейдж и счёт */
   flex: 1;
   font-family: "Cinzel", serif;
-  font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 1.5px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 2px;
   color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 6px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-overflow: clip;
+  padding-right: 4px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  /* Растягиваем текст по ширине */
+  display: flex;
+  align-items: center;
+}
+
+.score-name span {
+  display: block;
+  width: 100%;
+  /* font-size stretch через transform не работает в CSS, используем letter-spacing */
 }
 
 /* Счёт */
 .score-pts {
   position: relative;
   z-index: 1;
-  width: 46px;
+  width: 44px;
   flex-shrink: 0;
   text-align: right;
-  padding-right: 12px;
+  padding-right: 10px;
   font-family: "Cinzel", serif;
   font-weight: 700;
-  font-size: 20px;
+  font-size: 18px;
   color: #ffffff;
   text-shadow:
-    0 0 10px rgba(255, 255, 255, 0.3),
-    0 1px 3px rgba(0, 0, 0, 0.8);
+    0 0 12px rgba(255, 255, 255, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.9);
   letter-spacing: 0;
 }
 

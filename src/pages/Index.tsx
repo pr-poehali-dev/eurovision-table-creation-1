@@ -50,10 +50,8 @@ export default function Index() {
 
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const flyIdRef = useRef(0);
-  const prevSortedRef = useRef<Contestant[]>([]);
-  const [offsets, setOffsets] = useState<Record<string, { x: number; y: number }>>({});
   const tableRef = useRef<HTMLDivElement>(null);
-  const ROW_H = 42;
+  const ROW_H = 36;
 
   function startVoting() {
     if (selectedParticipants.length < 2 || selectedVoters.length < 1) return;
@@ -74,32 +72,6 @@ export default function Index() {
   );
 
   const half = Math.ceil(sortedContestants.length / 2);
-
-  // FLIP animation
-  useEffect(() => {
-    if (phase !== "voting") return;
-    const before: Record<string, { col: number; row: number }> = {};
-    prevSortedRef.current.forEach((c, i) => {
-      before[c.name] = { col: i < half ? 0 : 1, row: i < half ? i : i - half };
-    });
-    const newOffsets: Record<string, { x: number; y: number }> = {};
-    const tableW = tableRef.current ? tableRef.current.offsetWidth / 2 : 500;
-    sortedContestants.forEach((c, i) => {
-      const col = i < half ? 0 : 1;
-      const row = i < half ? i : i - half;
-      const prev = before[c.name];
-      if (prev) {
-        const dx = (prev.col - col) * tableW;
-        const dy = (prev.row - row) * ROW_H;
-        if (dx !== 0 || dy !== 0) newOffsets[c.name] = { x: dx, y: dy };
-      }
-    });
-    prevSortedRef.current = sortedContestants;
-    if (!Object.keys(newOffsets).length) return;
-    setOffsets(newOffsets);
-    const raf = requestAnimationFrame(() => requestAnimationFrame(() => setOffsets({})));
-    return () => cancelAnimationFrame(raf);
-  }, [sortedContestants, half, phase]);
 
   function handleContestantClick(targetName: string) {
     if (pointIndex >= POINTS_ORDER.length) return;
@@ -198,7 +170,6 @@ export default function Index() {
           currentPoints={currentPoints}
           pointIndex={pointIndex}
           flyingSquares={flyingSquares}
-          offsets={offsets}
           tableRef={tableRef}
           rowRefs={rowRefs}
           allPointsGiven={allPointsGiven}
@@ -296,6 +267,8 @@ function MenuScreen({
 }
 
 /* ═══ VOTING SCREEN ═══════════════════════════════════════════ */
+const ROW_H = 36;
+
 interface VotingScreenProps {
   sortedContestants: Contestant[];
   half: number;
@@ -305,7 +278,6 @@ interface VotingScreenProps {
   currentPoints: number | null;
   pointIndex: number;
   flyingSquares: FlyingSquare[];
-  offsets: Record<string, { x: number; y: number }>;
   tableRef: React.RefObject<HTMLDivElement>;
   rowRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   allPointsGiven: boolean;
@@ -315,12 +287,22 @@ interface VotingScreenProps {
 
 function VotingScreen({
   sortedContestants, half, currentVoter, voterIndex, totalVoters,
-  currentPoints, pointIndex, flyingSquares, offsets,
+  currentPoints, pointIndex, flyingSquares,
   tableRef, rowRefs, allPointsGiven,
   onContestantClick, onNextVoter,
 }: VotingScreenProps) {
-  const leftCol = sortedContestants.slice(0, half);
-  const rightCol = sortedContestants.slice(half);
+
+  // Вычисляем позицию каждой строки: col + top
+  // Левая колонка: 0..half-1, Правая: half..n-1
+  const rowPositions = sortedContestants.map((c, i) => ({
+    name: c.name,
+    col: i < half ? 0 : 1,
+    top: (i < half ? i : i - half) * ROW_H,
+  }));
+
+  const colHeightLeft = half * ROW_H;
+  const colHeightRight = (sortedContestants.length - half) * ROW_H;
+  const tableHeight = Math.max(colHeightLeft, colHeightRight);
 
   return (
     <div className="voting-bg">
@@ -334,53 +316,33 @@ function VotingScreen({
 
       {/* Таблица */}
       <div className="voting-table-wrap" ref={tableRef}>
-        <div className="voting-table-cols">
-          {/* Левая колонка */}
-          <div className="voting-col">
-            {leftCol.map((c, i) => {
-              const off = offsets[c.name];
-              return (
-                <div
-                  key={c.name}
-                  className="voting-row-anim"
-                  style={{
-                    transform: off ? `translate(${off.x}px,${off.y}px)` : "translate(0,0)",
-                    transition: off ? "none" : "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
-                  }}
-                >
-                  <ScoreRow
-                    c={c} rank={i + 1}
-                    isClickable={!allPointsGiven}
-                    onClick={() => onContestantClick(c.name)}
-                    rowRef={(el) => { rowRefs.current[c.name] = el; }}
-                  />
-                </div>
-              );
-            })}
-          </div>
-          {/* Правая колонка */}
-          <div className="voting-col">
-            {rightCol.map((c, i) => {
-              const off = offsets[c.name];
-              return (
-                <div
-                  key={c.name}
-                  className="voting-row-anim"
-                  style={{
-                    transform: off ? `translate(${off.x}px,${off.y}px)` : "translate(0,0)",
-                    transition: off ? "none" : "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
-                  }}
-                >
-                  <ScoreRow
-                    c={c} rank={half + i + 1}
-                    isClickable={!allPointsGiven}
-                    onClick={() => onContestantClick(c.name)}
-                    rowRef={(el) => { rowRefs.current[c.name] = el; }}
-                  />
-                </div>
-              );
-            })}
-          </div>
+        <div className="voting-table-cols" style={{ height: tableHeight }}>
+          {/* Разделитель колонок */}
+          <div className="voting-col-divider" />
+
+          {/* Все строки рендерятся в один слой, позиционируются абсолютно */}
+          {sortedContestants.map((c) => {
+            const pos = rowPositions.find(p => p.name === c.name)!;
+            return (
+              <div
+                key={c.name}
+                className="voting-abs-row"
+                style={{
+                  left: pos.col === 0 ? 0 : "50%",
+                  top: pos.top,
+                  width: "50%",
+                  transition: "top 0.6s cubic-bezier(0.4,0,0.2,1), left 0.6s cubic-bezier(0.4,0,0.2,1)",
+                }}
+              >
+                <ScoreRow
+                  c={c}
+                  isClickable={!allPointsGiven}
+                  onClick={() => onContestantClick(c.name)}
+                  rowRef={(el) => { rowRefs.current[c.name] = el; }}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -421,8 +383,8 @@ function VotingScreen({
 }
 
 /* ═══ SCORE ROW ═══════════════════════════════════════════════ */
-function ScoreRow({ c, rank, isClickable, onClick, rowRef }: {
-  c: Contestant; rank: number;
+function ScoreRow({ c, isClickable, onClick, rowRef }: {
+  c: Contestant;
   isClickable: boolean;
   onClick: () => void;
   rowRef: (el: HTMLDivElement | null) => void;
@@ -449,7 +411,7 @@ function ScoreRow({ c, rank, isClickable, onClick, rowRef }: {
       </div>
 
       {/* Имя — 70% ширины, заглавные, Cinzel */}
-      <div className="score-name">{c.name.toUpperCase()}</div>
+      <div className="score-name"><span>{c.name.toUpperCase()}</span></div>
 
       {/* Счёт */}
       <div className="score-pts">{c.points > 0 ? c.points : ""}</div>
