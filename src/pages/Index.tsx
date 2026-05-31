@@ -86,8 +86,9 @@ export default function Index() {
       id: flyId, points: pts,
       startX: ww / 2 - 36,
       startY: wh - 80,
-      endX: rowRect ? rowRect.right - 90 : ww / 2,
-      endY: rowRect ? rowRect.top + rowRect.height / 2 - 26 : wh / 2,
+      // летит в начало строки (левый край — зона бейджа)
+      endX: rowRect ? rowRect.left + 4 : ww / 2,
+      endY: rowRect ? rowRect.top + rowRect.height / 2 - 14 : wh / 2,
     }]);
 
     setPointIndex(prev => prev + 1);
@@ -312,69 +313,69 @@ function VotingScreen({
       {/* Flying squares */}
       {flyingSquares.map(sq => <FlyingSquareEl key={sq.id} sq={sq} />)}
 
-      {/* Таблица */}
-      <div className="voting-table-wrap" ref={tableRef}>
-        <div className="voting-table-cols" style={{ height: tableHeight }}>
-          {/* Разделитель колонок */}
-          <div className="voting-col-divider" />
+      {/* Центральный блок: таблица + баллы + голосующий */}
+      <div className="voting-center">
 
-          {/* Все строки рендерятся в один слой, позиционируются абсолютно */}
-          {sortedContestants.map((c) => {
-            const pos = rowPositions.find(p => p.name === c.name)!;
-            return (
-              <div
-                key={c.name}
-                className="voting-abs-row"
-                style={{
-                  left: pos.col === 0 ? 0 : "50%",
-                  top: pos.top,
-                  width: "50%",
-                  transition: "top 0.6s cubic-bezier(0.4,0,0.2,1), left 0.6s cubic-bezier(0.4,0,0.2,1)",
-                }}
-              >
-                <ScoreRow
-                  c={c}
-                  isClickable={!allPointsGiven}
-                  onClick={() => onContestantClick(c.name)}
-                  rowRef={(el) => { rowRefs.current[c.name] = el; }}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Нижняя панель */}
-      <div className="voting-bottom">
-        {/* Инфо о голосующем */}
-        <div className="voting-voter-info">
-          <span className="voting-voter-label">ГОЛОСУЕТ</span>
-          <span className="voting-voter-name">{currentVoter.toUpperCase()}</span>
-          <span className="voting-voter-count">{voterIndex + 1} / {totalVoters}</span>
+        {/* Таблица */}
+        <div className="voting-table-wrap" ref={tableRef}>
+          <div className="voting-table-cols" style={{ height: tableHeight }}>
+            {sortedContestants.map((c) => {
+              const pos = rowPositions.find(p => p.name === c.name)!;
+              const isLeft = pos.col === 0;
+              return (
+                <div
+                  key={c.name}
+                  className="voting-abs-row"
+                  style={{
+                    left: isLeft ? 0 : "calc(50% + 8px)",
+                    top: pos.top,
+                    width: "calc(50% - 8px)",
+                    transition: "top 0.6s cubic-bezier(0.4,0,0.2,1), left 0.6s cubic-bezier(0.4,0,0.2,1)",
+                  }}
+                >
+                  <ScoreRow
+                    c={c}
+                    isClickable={!allPointsGiven}
+                    onClick={() => onContestantClick(c.name)}
+                    rowRef={(el) => { rowRefs.current[c.name] = el; }}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Баллы */}
-        <div className="voting-points-strip">
-          {POINTS_ORDER.map((pts, idx) => {
-            const given = idx < pointIndex;
-            const active = idx === pointIndex;
-            const big = pts >= 8;
-            return (
-              <div
-                key={pts}
-                className={`vp-btn ${big ? "vp-btn-big" : "vp-btn-small"} ${given ? "vp-given" : ""} ${active ? "vp-active" : ""}`}
-              >
-                {pts}
-              </div>
-            );
-          })}
+        {/* Баллы прямо под таблицей */}
+        <div className="voting-points-under">
+          <div className="voting-points-strip">
+            {POINTS_ORDER.map((pts, idx) => {
+              const given = idx < pointIndex;
+              const active = idx === pointIndex;
+              const big = pts >= 8;
+              return (
+                <div
+                  key={pts}
+                  className={`vp-btn ${big ? "vp-btn-big" : "vp-btn-small"} ${given ? "vp-given" : ""} ${active ? "vp-active" : ""}`}
+                >
+                  {pts}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="voting-voter-info">
+            <span className="voting-voter-label">ГОЛОСУЕТ</span>
+            <span className="voting-voter-name">{currentVoter.toUpperCase()}</span>
+            <span className="voting-voter-count">{voterIndex + 1} / {totalVoters}</span>
+          </div>
+
+          {allPointsGiven && (
+            <button className="voting-next-btn" onClick={onNextVoter}>
+              СЛЕДУЮЩИЙ ГОЛОСУЮЩИЙ →
+            </button>
+          )}
         </div>
 
-        {allPointsGiven && (
-          <button className="voting-next-btn" onClick={onNextVoter}>
-            СЛЕДУЮЩИЙ ГОЛОСУЮЩИЙ →
-          </button>
-        )}
       </div>
     </div>
   );

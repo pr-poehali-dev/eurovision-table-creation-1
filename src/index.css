@@ -451,18 +451,28 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   ЦЕНТРАЛЬНЫЙ БЛОК
+═══════════════════════════════════════════════════════════ */
+.voting-center {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px 12px;
+  gap: 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════
    ТАБЛИЦА
 ═══════════════════════════════════════════════════════════ */
 .voting-table-wrap {
   position: relative;
-  z-index: 1;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 10px 10px 0;
-  scrollbar-width: none;
-  display: flex;
-  justify-content: center;
+  width: 820px;
+  max-width: 100%;
+  overflow: visible;
 }
 .voting-table-wrap::-webkit-scrollbar {
   display: none;
@@ -471,13 +481,10 @@
 .voting-table-cols {
   position: relative;
   background: transparent;
-  border-radius: 8px 8px 0 0;
+  border-radius: 4px;
   overflow: hidden;
   border: none;
-  width: 820px;
-  max-width: 100%;
-  flex-shrink: 0;
-  align-self: flex-start;
+  width: 100%;
 }
 
 /* Вертикальный разделитель */
@@ -641,19 +648,15 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   НИЖНЯЯ ПАНЕЛЬ
+   ПАНЕЛЬ БАЛЛОВ ПОД ТАБЛИЦЕЙ
 ═══════════════════════════════════════════════════════════ */
-.voting-bottom {
-  position: relative;
-  z-index: 1;
-  background: linear-gradient(180deg, #072010 0%, #041408 100%);
-  border-top: 2px solid rgba(200, 160, 20, 0.4);
-  padding: 8px 14px 12px;
+.voting-points-under {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 1px 0 rgba(212, 160, 20, 0.15) inset;
+  width: 820px;
+  max-width: 100%;
 }
 
 /* Инфо о голосующем */
@@ -807,30 +810,29 @@
 .fly-sq {
   position: fixed;
   z-index: 9999;
-  width: 64px;
-  height: 52px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 5px;
+  border-radius: 3px;
   font-family: "Cinzel", serif;
   font-weight: 700;
+  font-size: 11px;
   color: #fff;
   pointer-events: none;
 }
 
 .fly-sq-pink {
-  font-size: 30px;
-  background: linear-gradient(180deg, #f472b6 0%, #e91e8c 40%, #b5135b 100%);
-  border: 1px solid rgba(249, 168, 212, 0.5);
+  background: linear-gradient(160deg, #9333ea 0%, #6d28d9 60%, #4c1d95 100%);
+  border: 1px solid rgba(167, 139, 250, 0.6);
   box-shadow:
-    0 0 28px rgba(233, 30, 140, 0.9),
+    0 0 12px rgba(147, 51, 234, 0.8),
     0 1px 0 rgba(255, 255, 255, 0.2) inset;
 }
 
 .fly-sq-grey {
-  font-size: 22px;
-  background: linear-gradient(180deg, #3a3a52 0%, #252535 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(160deg, #9333ea 0%, #6d28d9 60%, #4c1d95 100%);
+  border: 1px solid rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 8px rgba(147, 51, 234, 0.6);
 }
