@@ -241,6 +241,53 @@ function VotingScreen({
   pointBtnRefs, rowRefs, allPointsGiven,
   onPointClick, onContestantClick, onNewVoting,
 }: VotingScreenProps) {
+  const ROW_H = 36;
+  const tableRef = useRef<HTMLDivElement>(null);
+  // FLIP: запоминаем позиции ДО ре-рендера
+  const posBeforeRef = useRef<Record<string, { col: number; top: number }>>({});
+  const [offsets, setOffsets] = useState<Record<string, { x: number; y: number }>>({});
+
+  // Снимаем позиции ПЕРЕД изменением списка
+  const prevSorted = useRef<Contestant[]>(sortedContestants);
+  useEffect(() => {
+    // FIRST: record where things were before this render
+    const before: Record<string, { col: number; top: number }> = {};
+    prevSorted.current.forEach((c, i) => {
+      const col = i < half ? 0 : 1;
+      const rowInCol = i < half ? i : i - half;
+      before[c.name] = { col, top: rowInCol * ROW_H };
+    });
+
+    // SECOND: compute offsets (where did they come FROM relative to where they are NOW)
+    const newOffsets: Record<string, { x: number; y: number }> = {};
+    const tableW = tableRef.current ? tableRef.current.offsetWidth / 2 : 400;
+    sortedContestants.forEach((c, i) => {
+      const col = i < half ? 0 : 1;
+      const rowInCol = i < half ? i : i - half;
+      const prev = before[c.name];
+      if (prev) {
+        const dx = (prev.col - col) * tableW;
+        const dy = prev.top - rowInCol * ROW_H;
+        if (dx !== 0 || dy !== 0) {
+          newOffsets[c.name] = { x: dx, y: dy };
+        }
+      }
+    });
+
+    prevSorted.current = sortedContestants;
+
+    if (Object.keys(newOffsets).length === 0) return;
+
+    // Apply offsets immediately (no transition), then animate to 0
+    setOffsets(newOffsets);
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setOffsets({});
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [sortedContestants, half]);
+
   const leftCol = sortedContestants.slice(0, half);
   const rightCol = sortedContestants.slice(half);
 
@@ -256,42 +303,68 @@ function VotingScreen({
       {/* Основная area */}
       <div style={{ flex: 1, display: "flex", gap: 0, overflow: "hidden", padding: "8px 8px 0" }}>
 
-        {/* ══ ТАБЛИЦА — точная копия оригинала ══ */}
-        <div style={{
-          flex: 1,
-          background: "#2c2c3c",
-          borderRadius: "6px 6px 0 0",
-          overflow: "hidden",
-          border: "1px solid rgba(255,255,255,0.06)",
-          borderBottom: "none",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-        }}>
+        {/* ══ ТАБЛИЦА ══ */}
+        <div
+          ref={tableRef}
+          style={{
+            flex: 1,
+            background: "#2c2c3c",
+            borderRadius: "6px 6px 0 0",
+            overflow: "hidden",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderBottom: "none",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+          }}>
           {/* ЛЕВАЯ КОЛОНКА */}
-          <div style={{ borderRight: "1px solid rgba(0,0,0,0.5)" }}>
-            {leftCol.map((c, i) => (
-              <TableRow
-                key={c.name} c={c} rank={i + 1}
-                even={i % 2 === 0}
-                isContestant={c.name === contestant}
-                isClickable={activePoints !== null && c.name !== contestant}
-                onClick={() => onContestantClick(c.name)}
-                rowRef={(el: HTMLDivElement | null) => { rowRefs.current[c.name] = el; }}
-              />
-            ))}
+          <div style={{ borderRight: "1px solid rgba(0,0,0,0.5)", position: "relative" }}>
+            {leftCol.map((c, i) => {
+              const off = offsets[c.name];
+              return (
+                <div
+                  key={c.name}
+                  style={{
+                    transform: off ? `translate(${off.x}px, ${off.y}px)` : "translate(0,0)",
+                    transition: off ? "none" : "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
+                    willChange: "transform",
+                  }}
+                >
+                  <TableRow
+                    c={c} rank={i + 1}
+                    even={i % 2 === 0}
+                    isContestant={c.name === contestant}
+                    isClickable={activePoints !== null && c.name !== contestant}
+                    onClick={() => onContestantClick(c.name)}
+                    rowRef={(el: HTMLDivElement | null) => { rowRefs.current[c.name] = el; }}
+                  />
+                </div>
+              );
+            })}
           </div>
           {/* ПРАВАЯ КОЛОНКА */}
-          <div>
-            {rightCol.map((c, i) => (
-              <TableRow
-                key={c.name} c={c} rank={half + i + 1}
-                even={i % 2 === 0}
-                isContestant={c.name === contestant}
-                isClickable={activePoints !== null && c.name !== contestant}
-                onClick={() => onContestantClick(c.name)}
-                rowRef={(el: HTMLDivElement | null) => { rowRefs.current[c.name] = el; }}
-              />
-            ))}
+          <div style={{ position: "relative" }}>
+            {rightCol.map((c, i) => {
+              const off = offsets[c.name];
+              return (
+                <div
+                  key={c.name}
+                  style={{
+                    transform: off ? `translate(${off.x}px, ${off.y}px)` : "translate(0,0)",
+                    transition: off ? "none" : "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
+                    willChange: "transform",
+                  }}
+                >
+                  <TableRow
+                    c={c} rank={half + i + 1}
+                    even={i % 2 === 0}
+                    isContestant={c.name === contestant}
+                    isClickable={activePoints !== null && c.name !== contestant}
+                    onClick={() => onContestantClick(c.name)}
+                    rowRef={(el: HTMLDivElement | null) => { rowRefs.current[c.name] = el; }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 
