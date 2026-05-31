@@ -59,7 +59,6 @@ export default function Index() {
       name, points: 0, animating: false, fillProgress: 0, lastReceived: null,
     }));
     setContestants(initial);
-    prevSortedRef.current = initial;
     setVoterIndex(0);
     setPointIndex(0);
     setPhase("voting");
