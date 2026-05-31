@@ -6,86 +6,31 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
-
     --radius: 0.5rem;
-
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -94,448 +39,748 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    margin: 0;
+    padding: 0;
   }
 }
 
-/* ===== EUROVISION VOTING ===== */
-
-.esc-root {
-  min-height: 100vh;
-  font-family: "Oswald", sans-serif;
+/* ═══════════════════════════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════════════════════════ */
+@keyframes ray-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.15);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
-/* --- SETUP SCREEN --- */
-.setup-bg {
+/* ═══════════════════════════════════════════════════════════
+   ROOT
+═══════════════════════════════════════════════════════════ */
+.esc-root {
+  min-height: 100vh;
+  font-family: "Cinzel", serif;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MENU
+═══════════════════════════════════════════════════════════ */
+.menu-bg {
   min-height: 100vh;
   background: radial-gradient(
-    ellipse at 30% 20%,
-    #1a0533 0%,
-    #0a0016 40%,
-    #050010 100%
+    ellipse at 25% 15%,
+    #22004a 0%,
+    #0a001f 45%,
+    #000 100%
   );
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 28px 16px 40px;
 }
 
-.setup-card {
+.menu-card {
   width: 100%;
-  max-width: 860px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 32px;
+  max-width: 880px;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 32px 36px;
+  box-shadow:
+    0 0 60px rgba(140, 0, 200, 0.15),
+    0 2px 0 rgba(255, 255, 255, 0.08) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.5) inset;
+  backdrop-filter: blur(10px);
 }
 
-.setup-logo {
-  font-size: 48px;
+.menu-header {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 28px;
 }
 
-.setup-title {
-  font-family: "Oswald", sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: #fff;
-  text-align: center;
-  letter-spacing: 4px;
-  line-height: 1.2;
+.menu-logo {
+  font-size: 36px;
+  color: #e879f9;
+  text-shadow: 0 0 20px rgba(232, 121, 249, 0.8);
   margin-bottom: 6px;
 }
 
-.setup-subtitle {
-  font-size: 18px;
-  color: #c084fc;
-  letter-spacing: 8px;
+.menu-title {
+  font-family: "Cinzel", serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 10px;
+  color: #fff;
+  text-shadow:
+    0 0 30px rgba(232, 121, 249, 0.5),
+    0 2px 0 rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, #fff 0%, #d0a0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
 }
 
-.setup-section {
-  margin-top: 28px;
-}
-
-.setup-label {
-  display: block;
-  font-family: "Oswald", sans-serif;
+.menu-subtitle {
+  font-family: "Cinzel", serif;
   font-size: 13px;
+  letter-spacing: 8px;
+  color: rgba(200, 150, 255, 0.7);
+  margin: 4px 0 0;
+}
+
+/* Табы */
+.menu-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.menu-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-family: "Cinzel", serif;
+  font-size: 13px;
+  font-weight: 600;
   letter-spacing: 3px;
-  color: #a78bfa;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.menu-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.menu-tab-active {
+  background: linear-gradient(
+    135deg,
+    rgba(120, 20, 180, 0.6),
+    rgba(200, 30, 140, 0.4)
+  ) !important;
+  border-color: rgba(232, 121, 249, 0.5) !important;
+  color: #fff !important;
+  box-shadow:
+    0 0 20px rgba(200, 30, 140, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.15) inset;
+}
+
+.menu-tab-count {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+}
+
+/* Кнопки выбрать/снять */
+.menu-actions {
+  display: flex;
+  gap: 8px;
   margin-bottom: 12px;
 }
 
-.setup-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.menu-action-btn {
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-.setup-btn {
-  font-family: "Montserrat", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
+.menu-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Список */
+.menu-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200, 100, 255, 0.3) transparent;
+  padding: 2px 0 4px;
+  margin-bottom: 20px;
+}
+
+.menu-list-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 7px 14px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.06);
-  color: #d4c9f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.55);
+  font-family: "Cinzel", serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 }
 
-.setup-btn:hover {
-  background: rgba(167, 139, 250, 0.2);
-  border-color: #a78bfa;
-  color: #fff;
+.menu-list-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.setup-btn-active {
-  background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
-  border-color: #c084fc !important;
+.menu-list-item-on {
+  background: linear-gradient(
+    135deg,
+    rgba(100, 20, 160, 0.7),
+    rgba(180, 20, 120, 0.5)
+  ) !important;
+  border-color: rgba(200, 100, 255, 0.5) !important;
   color: #fff !important;
-  box-shadow: 0 0 16px rgba(168, 85, 247, 0.5);
+  box-shadow:
+    0 0 10px rgba(180, 20, 200, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
 }
 
-.setup-start {
+.menu-list-check {
+  font-size: 10px;
+  width: 12px;
+  color: #e879f9;
+  text-shadow: 0 0 6px rgba(232, 121, 249, 0.8);
+}
+
+.menu-list-name {
+  font-family: "Cinzel", serif;
+}
+
+/* Кнопка старт */
+.menu-start {
   display: block;
   width: 100%;
-  margin-top: 32px;
   padding: 16px;
-  font-family: "Oswald", sans-serif;
-  font-size: 18px;
+  font-family: "Cinzel", serif;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 4px;
-  border-radius: 8px;
+  letter-spacing: 6px;
+  border-radius: 10px;
   border: none;
-  cursor: pointer;
   transition: all 0.2s;
 }
 
-.setup-start-ready {
-  background: linear-gradient(135deg, #be185d, #ec4899, #f472b6);
+.menu-start-ready {
+  background: linear-gradient(135deg, #8b005d, #e91e8c, #f472b6);
   color: #fff;
-  box-shadow: 0 0 32px rgba(236, 72, 153, 0.5);
+  cursor: pointer;
+  box-shadow:
+    0 0 30px rgba(233, 30, 140, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.3) inset;
 }
 
-.setup-start-ready:hover {
+.menu-start-ready:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 40px rgba(236, 72, 153, 0.7);
+  box-shadow:
+    0 4px 40px rgba(233, 30, 140, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.25) inset;
 }
 
-.setup-start-disabled {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.3);
+.menu-start-disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.2);
   cursor: not-allowed;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.setup-error {
+.menu-hint {
   text-align: center;
-  color: #f87171;
-  font-family: "Montserrat", sans-serif;
-  font-size: 13px;
-  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: "Oswald", sans-serif;
+  font-size: 12px;
+  margin-top: 8px;
+  letter-spacing: 1px;
 }
 
-/* --- VOTING SCREEN --- */
-.esc-bg {
-  min-height: 100vh;
-  background: radial-gradient(
-    ellipse at 20% 50%,
-    #1a0533 0%,
-    #08001a 50%,
-    #000010 100%
-  );
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.esc-layout {
-  display: flex;
-  flex: 1;
-  gap: 0;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* --- SCOREBOARD TABLE --- */
-.esc-table-wrap {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px 0 12px 12px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-}
-
-.esc-table-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.esc-row {
+/* ═══════════════════════════════════════════════════════════
+   VOTING BG — анимированный фон как на Евровидении
+═══════════════════════════════════════════════════════════ */
+.voting-bg {
   position: relative;
   display: flex;
-  align-items: center;
-  height: 38px;
-  background: #1a1a2e;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
+  flex-direction: column;
+  height: 100vh;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 50%,
+    #0a0015 0%,
+    #000 100%
+  );
   overflow: hidden;
-  transition:
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.3s;
 }
 
-.esc-row::before {
-  content: "";
+/* Лучи */
+.voting-bg-rays {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, #8b8b8b 0%, #c0c0c0 50%, #9a9a9a 100%);
-  transform: scaleX(var(--fill-progress, 0));
-  transform-origin: left;
-  transition: transform 0.05s linear;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(80, 0, 120, 0.12) 20deg,
+    transparent 40deg,
+    rgba(180, 0, 100, 0.08) 70deg,
+    transparent 90deg,
+    rgba(60, 0, 100, 0.1) 130deg,
+    transparent 150deg,
+    rgba(150, 0, 80, 0.07) 200deg,
+    transparent 220deg,
+    rgba(80, 0, 120, 0.1) 270deg,
+    transparent 290deg,
+    rgba(180, 0, 100, 0.06) 330deg,
+    transparent 360deg
+  );
+  animation: ray-spin 25s linear infinite;
+  pointer-events: none;
   z-index: 0;
 }
 
-.esc-row-animating::before {
-  background: linear-gradient(
-    90deg,
-    #6b7280 0%,
-    #9ca3af 40%,
-    #d1d5db 70%,
-    #f3f4f6 100%
+/* Свечения */
+.voting-bg-glow1 {
+  position: absolute;
+  width: 600px;
+  height: 400px;
+  left: -100px;
+  bottom: -100px;
+  background: radial-gradient(
+    ellipse,
+    rgba(150, 0, 200, 0.2) 0%,
+    transparent 70%
   );
+  animation: glow-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.esc-row-contestant {
-  border-color: rgba(168, 85, 247, 0.4);
-  background: rgba(88, 28, 135, 0.3);
-  cursor: not-allowed;
+.voting-bg-glow2 {
+  position: absolute;
+  width: 500px;
+  height: 350px;
+  right: -80px;
+  bottom: -80px;
+  background: radial-gradient(
+    ellipse,
+    rgba(220, 0, 120, 0.18) 0%,
+    transparent 70%
+  );
+  animation: glow-pulse 5s ease-in-out 1.5s infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.esc-row-clickable {
-  cursor: pointer;
-}
-
-.esc-row-clickable:hover {
-  transform: scaleX(1.01);
-  box-shadow:
-    0 0 16px rgba(168, 85, 247, 0.5),
-    inset 0 0 0 1px rgba(168, 85, 247, 0.6);
-  z-index: 2;
-}
-
-.esc-row-rank {
-  position: relative;
-  z-index: 1;
-  width: 36px;
-  text-align: center;
-  font-family: "Oswald", sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  flex-shrink: 0;
-}
-
-.esc-row-name {
+/* ═══════════════════════════════════════════════════════════
+   ТАБЛИЦА
+═══════════════════════════════════════════════════════════ */
+.voting-table-wrap {
   position: relative;
   z-index: 1;
   flex: 1;
-  font-family: "Montserrat", sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 8px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  padding: 10px 10px 0;
 }
 
-.esc-row-score {
+.voting-table-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  height: 100%;
+  background: #0a0a0a;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 -20px 60px rgba(100, 0, 160, 0.1) inset;
+}
+
+.voting-col {
+  overflow: hidden;
+}
+
+.voting-col:first-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.voting-row-anim {
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   СТРОКА УЧАСТНИКА
+═══════════════════════════════════════════════════════════ */
+.score-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 42px;
+  background: #111118;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+  overflow: hidden;
+  cursor: default;
+  /* Нижняя тень для разделения строк */
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.02),
+    0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Глянцевый блик сверху */
+.score-row::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.score-row-clickable {
+  cursor: pointer;
+}
+
+.score-row-clickable:hover {
+  background: #1a1a28;
+  box-shadow:
+    0 0 0 1px rgba(200, 100, 255, 0.3) inset,
+    0 0 20px rgba(180, 0, 200, 0.15) inset,
+    0 1px 0 rgba(255, 255, 255, 0.02),
+    0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Silver sweep */
+.score-row-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #1a1a1a 0%,
+    #3a3a3a 20%,
+    #787878 45%,
+    #b0b0b0 60%,
+    #d8d8d8 75%,
+    #f0f0f0 88%,
+    #e0e0e0 100%
+  );
+  transform-origin: left;
+  transition: transform 0.04s linear;
+  z-index: 0;
+}
+
+/* Бейдж */
+.score-badge-wrap {
   position: relative;
   z-index: 1;
-  width: 44px;
-  text-align: right;
-  padding-right: 12px;
-  font-family: "Oswald", sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-}
-
-/* --- RIGHT PANEL --- */
-.esc-right {
-  width: 280px;
+  width: 36px;
+  height: 100%;
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.3);
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.esc-voter-panel {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-}
-
-.esc-contestant-name {
-  font-family: "Oswald", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 1px;
-  line-height: 1.2;
-  margin-bottom: 6px;
-}
-
-.esc-voter-info {
-  font-family: "Montserrat", sans-serif;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 8px;
-}
-
-.esc-voter-label {
-  font-family: "Montserrat", sans-serif;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.esc-voter-label span {
-  color: #c084fc;
-  font-weight: 700;
-}
-
-/* --- POINTS PANEL --- */
-.esc-points-panel {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 12px;
-}
-
-.esc-points-label {
-  font-family: "Montserrat", sans-serif;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.4);
-  text-align: center;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  min-height: 14px;
-}
-
-.esc-points-row {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.esc-points-row-big {
-  gap: 6px;
-  margin-bottom: 0;
-}
-
-.esc-point-btn {
-  font-family: "Oswald", sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  width: 34px;
-  height: 34px;
-  border-radius: 4px;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  background: rgba(100, 116, 139, 0.5);
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
 }
 
-.esc-point-btn:hover:not(:disabled) {
-  background: rgba(100, 116, 139, 0.8);
-  border-color: rgba(255, 255, 255, 0.4);
+.score-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  /* Глянцевый фиолетовый */
+  background: linear-gradient(160deg, #9333ea 0%, #6d28d9 60%, #4c1d95 100%);
+  border: 1px solid rgba(167, 139, 250, 0.5);
+  box-shadow:
+    0 0 8px rgba(147, 51, 234, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.3) inset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Имя — 70% ширины, Cinzel, заглавные */
+.score-name {
+  position: relative;
+  z-index: 1;
+  /* 70% строки минус бейдж и счёт */
+  flex: 1;
+  font-family: "Cinzel", serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Счёт */
+.score-pts {
+  position: relative;
+  z-index: 1;
+  width: 46px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 12px;
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #ffffff;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   НИЖНЯЯ ПАНЕЛЬ
+═══════════════════════════════════════════════════════════ */
+.voting-bottom {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(180deg, #090912 0%, #050508 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 8px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  /* Глянцевая полоска сверху */
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Инфо о голосующем */
+.voting-voter-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voting-voter-label {
+  font-family: "Cinzel", serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.voting-voter-name {
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: #fff;
+  text-shadow:
+    0 0 20px rgba(232, 121, 249, 0.5),
+    0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.voting-voter-count {
+  font-family: "Oswald", sans-serif;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ПОЛОСА БАЛЛОВ
+═══════════════════════════════════════════════════════════ */
+.voting-points-strip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Маленькая кнопка балла */
+.vp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  border-radius: 5px;
+  color: #fff;
+  pointer-events: none;
+  transition: all 0.15s;
+}
+
+.vp-btn-small {
+  width: 52px;
+  height: 52px;
+  font-size: 22px;
+  /* Глянцевый тёмный */
+  background: linear-gradient(180deg, #3a3a52 0%, #252535 60%, #1a1a28 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.4) inset;
+  letter-spacing: 0;
+}
+
+.vp-btn-big {
+  width: 80px;
+  height: 52px;
+  font-size: 30px;
+  /* Глянцевый розовый */
+  background: linear-gradient(180deg, #f472b6 0%, #e91e8c 40%, #b5135b 100%);
+  border: 1px solid rgba(249, 168, 212, 0.4);
+  box-shadow:
+    0 0 20px rgba(233, 30, 140, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.3) inset;
+  letter-spacing: -1px;
+}
+
+/* Уже использован */
+.vp-given {
+  opacity: 0.18;
+  filter: saturate(0);
+}
+
+/* Текущий — светится */
+.vp-active.vp-btn-small {
+  background: linear-gradient(
+    180deg,
+    #5a5a78 0%,
+    #404058 60%,
+    #303048 100%
+  ) !important;
+  border-color: rgba(200, 150, 255, 0.5) !important;
+  box-shadow:
+    0 0 20px rgba(180, 100, 255, 0.7),
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset !important;
   transform: scale(1.1);
 }
 
-.esc-point-btn-big {
-  font-size: 24px;
-  width: 72px;
-  height: 56px;
-  border-radius: 6px;
-  border-width: 2px;
-  background: linear-gradient(135deg, #be185d 0%, #ec4899 100%);
-  border-color: #f472b6;
-  box-shadow: 0 0 16px rgba(236, 72, 153, 0.4);
+.vp-active.vp-btn-big {
+  background: linear-gradient(
+    180deg,
+    #ff80c0 0%,
+    #f01890 40%,
+    #c0105a 100%
+  ) !important;
+  border-color: rgba(255, 200, 230, 0.6) !important;
+  box-shadow:
+    0 0 35px rgba(240, 24, 144, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.3) inset !important;
+  transform: scale(1.1);
 }
 
-.esc-point-btn-big:hover:not(:disabled) {
-  background: linear-gradient(135deg, #9d174d 0%, #db2777 100%);
-  box-shadow: 0 0 24px rgba(236, 72, 153, 0.7);
-  transform: scale(1.08);
-}
-
-.esc-point-active {
-  border-color: #f0abfc !important;
-  box-shadow: 0 0 20px rgba(240, 171, 252, 0.8) !important;
-  transform: scale(1.12) !important;
-}
-
-.esc-point-given {
-  opacity: 0.25;
-  cursor: not-allowed !important;
-  transform: none !important;
-}
-
-.esc-next-btn {
-  font-family: "Oswald", sans-serif;
-  font-size: 14px;
+/* Кнопка следующий */
+.voting-next-btn {
+  font-family: "Cinzel", serif;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 2px;
-  padding: 14px;
+  letter-spacing: 4px;
+  padding: 10px 28px;
   border-radius: 8px;
   border: none;
-  background: linear-gradient(135deg, #be185d, #ec4899);
-  color: #fff;
   cursor: pointer;
-  box-shadow: 0 0 24px rgba(236, 72, 153, 0.5);
+  background: linear-gradient(135deg, #8b005d, #e91e8c, #f472b6);
+  color: #fff;
+  box-shadow:
+    0 0 28px rgba(233, 30, 140, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset;
   transition: all 0.2s;
-  margin-top: auto;
 }
 
-.esc-next-btn:hover {
+.voting-next-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 32px rgba(236, 72, 153, 0.7);
+  box-shadow:
+    0 4px 36px rgba(233, 30, 140, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset;
 }
 
-/* --- FLYING SQUARE --- */
-.flying-sq {
-  font-family: "Oswald", sans-serif;
+/* ═══════════════════════════════════════════════════════════
+   FLYING SQUARE
+═══════════════════════════════════════════════════════════ */
+.fly-sq {
+  position: fixed;
+  z-index: 9999;
+  width: 64px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-family: "Cinzel", serif;
   font-weight: 700;
+  color: #fff;
+  pointer-events: none;
 }
 
-.flying-sq-pink {
-  background: linear-gradient(135deg, #be185d, #ec4899) !important;
-  box-shadow: 0 0 20px rgba(236, 72, 153, 0.8);
+.fly-sq-pink {
+  font-size: 30px;
+  background: linear-gradient(180deg, #f472b6 0%, #e91e8c 40%, #b5135b 100%);
+  border: 1px solid rgba(249, 168, 212, 0.5);
+  box-shadow:
+    0 0 28px rgba(233, 30, 140, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset;
 }
 
-.flying-sq-blue {
-  background: linear-gradient(135deg, #1d4ed8, #3b82f6) !important;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+.fly-sq-grey {
+  font-size: 22px;
+  background: linear-gradient(180deg, #3a3a52 0%, #252535 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
